@@ -87,7 +87,8 @@
               {
                 "key": "x-user-role",
                 "value": "manager",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               }
             ],
             "body": {
@@ -182,7 +183,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": ""
+                  "value": "1"
                 }
               ]
             }
@@ -200,7 +201,22 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "http://localhost:3000/attractions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "attractions"
+              ],
+              "query": [
+                {
+                  "key": "country",
+                  "value": "France",
+                  "disabled": true
+                }
+              ]
             }
           },
           "response": []
@@ -211,7 +227,22 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "http://localhost:3000/attractions/:id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "attractions",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
             }
           },
           "response": []
@@ -280,14 +311,21 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3000/attractions",
+              "raw": "http://localhost:3000/attractions/:id",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
-                "attractions"
+                "attractions",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "3"
+                }
               ]
             }
           },
