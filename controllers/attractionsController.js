@@ -1,14 +1,24 @@
 const attractions = require("../models/attractions");
-
+const users = require("../models/users");
 const getNextId = () => {
   if (attractions.length === 0) return 1;
   return Math.max(...attractions.map(a => a.id)) + 1;
 };
 
 exports.getAllAttractions = (req, res) => {
+  const { country } = req.query;
+
+  let filteredAttractions = attractions;
+
+  if (country) {
+    filteredAttractions = attractions.filter(
+      (a) => a.country.toLowerCase() === country.toLowerCase()
+    );
+  }
+
   res.status(200).json({
     success: true,
-    data: attractions,
+    data: filteredAttractions,
     error: null
   });
 };
@@ -50,18 +60,43 @@ exports.getAttractionById = (req, res) => {
 };
 
 exports.createAttraction = (req, res) => {
-  const { name, city, country, category, price, rating } = req.body;
+  const { name, city, country, category, price, rating, user_id } = req.body;
 
-  if (!name || !city || !country || !category || price === undefined || rating === undefined) {
+  if (
+    !name ||
+    !city ||
+    !country ||
+    !category ||
+    price === undefined ||
+    rating === undefined ||
+    user_id === undefined
+  ) {
     return res.status(400).json({
       success: false,
       data: null,
       error: {
         code: "VALIDATION_ERROR",
-        message: "Missing required fields: name, city, country, category, price, rating",
+        message: "Missing required fields: name, city, country, category, price, rating, user_id",
         details: {
-          requiredFields: ["name", "city", "country", "category", "price", "rating"]
+          requiredFields: ["name", "city", "country", "category", "price", "rating", "user_id"]
         }
+      }
+    });
+  }
+
+  // בדיקה אם המשתמש קיים
+  const userExists = users.some(
+    (u) => u.userId === Number(user_id)
+  );
+
+  if (!userExists) {
+    return res.status(400).json({
+      success: false,
+      data: null,
+      error: {
+        code: "INVALID_USER_ID",
+        message: "User id does not exist.",
+        details: { user_id }
       }
     });
   }
@@ -73,7 +108,8 @@ exports.createAttraction = (req, res) => {
     country,
     category,
     price,
-    rating
+    rating,
+    user_id
   };
 
   attractions.push(newAttraction);
@@ -87,7 +123,7 @@ exports.createAttraction = (req, res) => {
 
 exports.updateAttraction = (req, res) => {
   const id = Number(req.params.id);
-  const { name, city, country, category, price, rating } = req.body;
+  const { name, city, country, category, price, rating, user_id } = req.body;
 
   if (isNaN(id)) {
     return res.status(400).json({
@@ -101,15 +137,23 @@ exports.updateAttraction = (req, res) => {
     });
   }
 
-  if (!name || !city || !country || !category || price === undefined || rating === undefined) {
+  if (
+    !name ||
+    !city ||
+    !country ||
+    !category ||
+    price === undefined ||
+    rating === undefined ||
+    user_id === undefined
+  ) {
     return res.status(400).json({
       success: false,
       data: null,
       error: {
         code: "VALIDATION_ERROR",
-        message: "Missing required fields: name, city, country, category, price, rating",
+        message: "Missing required fields: name, city, country, category, price, rating, user_id",
         details: {
-          requiredFields: ["name", "city", "country", "category", "price", "rating"]
+          requiredFields: ["name", "city", "country", "category", "price", "rating", "user_id"]
         }
       }
     });
@@ -135,6 +179,7 @@ exports.updateAttraction = (req, res) => {
   attraction.category = category;
   attraction.price = price;
   attraction.rating = rating;
+  attraction.user_id = user_id;
 
   res.status(200).json({
     success: true,
