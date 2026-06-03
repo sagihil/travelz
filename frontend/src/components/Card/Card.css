@@ -1,0 +1,111 @@
+/* components/Card/Card.css
+ * Purpose: Shared styles for both card variants (stat and attraction).
+ */
+
+/* ── Base card ─────────────────────────────────────────────── */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Stat Card variant ──────────────────────────────────────── */
+.card--stat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.card--stat .card-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.card--stat .card-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.card--stat .card-title {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ── Attraction Card variant ────────────────────────────────── */
+.card--attraction {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card--attraction .card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card--attraction .card-icon {
+  font-size: 1.5rem;
+}
+
+.card--attraction .card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.card-location {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.card-category {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+:root.dark .card-category {
+  background-color: #1e3a5f;
+  color: #93c5fd;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.card-price {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.card-rating {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-warning);
+}

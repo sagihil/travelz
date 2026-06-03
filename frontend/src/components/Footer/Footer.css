@@ -1,0 +1,95 @@
+/* components/Footer/Footer.css
+ * ----------------------------
+ * Purpose: Styles for the reusable Footer component.
+ * Layout:  Three-column flex row on desktop → single column stack on mobile.
+ */
+
+/* ── Shell ───────────────────────────────────────────────── */
+.footer {
+  background-color: var(--bg-footer);   /* defined in index.css – dark navy */
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: auto;                     /* pushes footer to the bottom in flex layouts */
+}
+
+/* ── Inner container ─────────────────────────────────────── */
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;       /* collapses to stacked columns on narrow screens */
+  gap: 24px;
+}
+
+/* ── Left column: brand + slogan ─────────────────────────── */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.footer-slogan {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+/* ── Centre column: team members ─────────────────────────── */
+.footer-team {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-team-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 2px;
+}
+
+.footer-team-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-team-list li {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Right column: copyright ─────────────────────────────── */
+.footer-copyright {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+  align-self: flex-end;   /* pins copyright to the bottom of the footer */
+}
+
+/* ── Responsive: stack all columns on small screens ─────── */
+@media (max-width: 600px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .footer-copyright {
+    align-self: flex-start;
+  }
+}

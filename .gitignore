@@ -1,2 +1,19 @@
+# Dependencies – both backend and frontend
 node_modules
+
+# Vite production build output
+dist
+
+# Environment variable files – never commit secrets
 .env
+.env.local
+.env.*.local
+
+# npm / node logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS metadata files
+.DS_Store
+Thumbs.db

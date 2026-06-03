@@ -1,0 +1,103 @@
+/* index.css
+ * ---------
+ * Purpose: Global CSS reset and CSS custom-property (variable) definitions.
+ * All components import their own CSS files but share these base variables.
+ * The dark theme is toggled by adding the class "dark" to the <html> element.
+ */
+
+/* ---------- CSS Variables – Light Theme (default) ---------- */
+:root {
+  --color-primary:    #2563eb;   /* main blue – buttons, links */
+  --color-primary-hover: #1d4ed8;
+  --color-secondary:  #0ea5e9;   /* sky blue accent */
+  --color-success:    #10b981;
+  --color-error:      #ef4444;
+  --color-warning:    #f59e0b;
+
+  --bg-page:          #f0f4f8;   /* overall page background */
+  --bg-card:          #ffffff;   /* card / panel background */
+  --bg-navbar:        #1e3a5f;   /* dark navy navbar */
+  --bg-footer:        #1e3a5f;
+
+  --text-primary:     #1e293b;
+  --text-secondary:   #64748b;
+  --text-inverse:     #ffffff;   /* text on dark backgrounds */
+
+  --border-color:     #e2e8f0;
+  --shadow-sm:        0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:        0 4px 12px rgba(0,0,0,0.1);
+
+  --radius-sm:        6px;
+  --radius-md:        10px;
+  --radius-lg:        16px;
+
+  --font-family:      'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ---------- CSS Variables – Dark Theme ---------- */
+:root.dark {
+  --bg-page:    #0f172a;
+  --bg-card:    #1e293b;
+  --text-primary:  #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color:  #334155;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ---------- Utility classes ---------- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-content {
+  flex: 1;
+  padding: 32px 0;
+}

@@ -1,0 +1,252 @@
+/* pages/Dashboard/Dashboard.css
+ * Purpose: Styles specific to the Dashboard page layout.
+ */
+
+/* ── Page header ─────────────────────────────────────────── */
+.dashboard-header {
+  margin-bottom: 32px;
+}
+
+.dashboard-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.dashboard-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+/* ── Sections ────────────────────────────────────────────── */
+.dashboard-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-primary);
+  display: inline-block;
+}
+
+/* ── Stats grid: 3 equal columns ────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Attractions grid: 3 equal columns ──────────────────── */
+.attractions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .attractions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .attractions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Loading / empty states ──────────────────────────────── */
+.cards-loading,
+.empty-msg {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  padding: 16px 0;
+}
+
+/* ── Alert banners ───────────────────────────────────────── */
+.alert-banner {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.alert-banner--error {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.alert-banner--success {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* ── Dashboard header row: title + role badge side by side ─ */
+.dashboard-header-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+/* ── Section header: title left, action button right ────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+/* When section-title sits inside section-header, remove its own margin */
+.section-header .section-title {
+  margin-bottom: 0;
+}
+
+/* ── "Create" button in section headers ─────────────────── */
+.btn-add {
+  padding: 8px 16px;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-add:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* ── Table action buttons (Edit / Delete per row) ────────── */
+.table-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.btn-action {
+  padding: 4px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.btn-action:hover {
+  opacity: 0.82;
+}
+
+.btn-edit   { background-color: #0891b2; color: #fff; }
+.btn-delete { background-color: #dc2626; color: #fff; }
+
+/* ── Role badge (shared with Settings, defined here for Dashboard) ─ */
+.role-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-admin   { background-color: #7c3aed; color: #fff; }
+.role-manager { background-color: #0891b2; color: #fff; }
+.role-user    { background-color: #475569; color: #fff; }
+
+/* ── Role Overview card ──────────────────────────────────── */
+.role-overview-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.role-overview-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+/* ── Permissions grid inside Role Overview ───────────────── */
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .permissions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .permissions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.permission-item.allowed {
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+:root.dark .permission-item.allowed {
+  background-color: #14291e;
+  color: #4ade80;
+}
+
+.permission-icon {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* ── Empty-state message when a role has no listed permissions ─ */
+.no-permissions-msg {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding: 8px 0;
+}
+
+/* ── Modal optional label hint ───────────────────────────── */
+.modal-optional {
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
