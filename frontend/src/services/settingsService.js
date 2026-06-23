@@ -19,6 +19,7 @@
 //   index.css switch the entire app's colour scheme immediately.
 
 import api from './api.js';
+import { announcePresence } from './socketService.js';
 
 // ---------------------------------------------------------------------------
 // getSettings()
@@ -47,8 +48,12 @@ const updateSettings = async (settings) => {
 
   const updated = response.data.data;
 
-  // Keep the locally cached user in sync so Navbar shows the updated name immediately
+  // Keep both storages in sync so Navbar and socket both see the updated name
+  sessionStorage.setItem('travelz_user', JSON.stringify(updated));
   localStorage.setItem('travelz_user', JSON.stringify(updated));
+
+  // Re-announce presence so the online users panel shows the updated name
+  announcePresence();
 
   return { success: true, data: updated };
 };
