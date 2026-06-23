@@ -88,4 +88,20 @@ const getStoredUser = () => {
   }
 };
 
-export { login, logout, getCurrentUser, isAuthenticated, getStoredUser };
+// ---------------------------------------------------------------------------
+// register(firstName, lastName, email, password)
+// ---------------------------------------------------------------------------
+const register = async (firstName, lastName, email, password) => {
+  const response = await api.post('/auth/register', { firstName, lastName, email, password });
+  const { token, user } = response.data.data;
+
+  sessionStorage.setItem(
+    AUTH_KEY,
+    JSON.stringify({ token, userId: user.userId, isLoggedIn: true, loginTime: new Date().toISOString() })
+  );
+  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+
+  return { success: true, user };
+};
+
+export { login, logout, register, getCurrentUser, isAuthenticated, getStoredUser };

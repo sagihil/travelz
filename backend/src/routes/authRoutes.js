@@ -14,7 +14,8 @@ const authController = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Public route – no auth required to log in
-router.post('/login', authController.login);
+router.post('/login',    authController.login);
+router.post('/register', authController.register);
 
 // Protected route – must send a valid token to log out
 router.post('/logout', authMiddleware, authController.logout);

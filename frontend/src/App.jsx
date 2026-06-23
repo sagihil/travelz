@@ -16,6 +16,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import Login       from './pages/Login/Login.jsx';
+import Register    from './pages/Register/Register.jsx';
 import Dashboard   from './pages/Dashboard/Dashboard.jsx';
 import Settings    from './pages/Settings/Settings.jsx';
 import Trips       from './pages/Trips/Trips.jsx';
@@ -40,8 +41,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public route: anyone can visit /login */}
-        <Route path="/login" element={<Login />} />
+        {/* Public routes */}
+        <Route path="/login"    element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Protected routes: only accessible when authenticated */}
         <Route

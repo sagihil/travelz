@@ -30,7 +30,7 @@
 //   serverError  – Error message returned by the backend / network
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { login, isAuthenticated } from '../../services/authService.js';
 import './Login.css';
 
@@ -192,6 +192,10 @@ function Login() {
             )}
           </button>
         </form>
+
+        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.9rem', color: '#64748b' }}>
+          Don't have an account? <Link to="/register" style={{ color: '#2563eb', fontWeight: 600 }}>Sign Up</Link>
+        </p>
 
       </div>
     </div>
