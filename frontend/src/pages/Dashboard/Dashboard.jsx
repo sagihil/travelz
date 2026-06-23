@@ -180,20 +180,20 @@ function Dashboard() {
     setLoading(true);
     setError('');
     try {
-      // Only fetch the users list for roles that are allowed to see it.
-      // Regular users get an empty array so the component renders correctly
-      // without ever sending a request for user data they cannot view.
-      const [attractionsData, usersData] = await Promise.all([
-        getAllAttractions(),
-        canSeeUsers ? getAllUsers() : Promise.resolve([]),
-      ]);
+      const attractionsData = await getAllAttractions();
       setAttractions(attractionsData);
-      setUsers(usersData);
     } catch (err) {
-      setError(err.message || 'Failed to load dashboard data. Is the backend running?');
-    } finally {
-      setLoading(false);
+      setError(err.message || 'Failed to load attractions. Is the backend running?');
     }
+    if (canSeeUsers) {
+      try {
+        const usersData = await getAllUsers();
+        setUsers(usersData);
+      } catch {
+        // users fetch failed — attractions already loaded above
+      }
+    }
+    setLoading(false);
   };
 
   useEffect(() => { loadData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
