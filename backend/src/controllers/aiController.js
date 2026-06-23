@@ -355,9 +355,10 @@ exports.travelAgent = async (req, res) => {
       });
     }
 
-    // Reject messages with no meaningful letter content (gibberish / random keys)
-    const letterCount = (trimmedMessage.match(/[a-zA-Z֐-׿]/g) || []).length;
-    if (letterCount < 3 || trimmedMessage.length < 3) {
+    // Reject gibberish: must have at least 3 letters AND at least one vowel
+    const letters = (trimmedMessage.match(/[a-zA-Z]/g) || []);
+    const vowels  = (trimmedMessage.match(/[aeiouAEIOU]/g) || []);
+    if (trimmedMessage.length < 3 || letters.length < 3 || vowels.length === 0) {
       return res.status(400).json({ success: false, data: null,
         error: { code: 'INVALID_INPUT', message: 'Please enter a valid travel-related request.' },
       });
