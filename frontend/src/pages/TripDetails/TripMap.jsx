@@ -49,11 +49,16 @@ const catIcon = (cat) => CAT_ICONS[cat] ?? CAT_ICONS.Default;
 
 // ── Main component ────────────────────────────────────────────────────────
 function TripMap({ attractions }) {
-  // Only render markers for attractions with valid coordinates
-  const withCoords = attractions.filter(
-    a => a.latitude != null && a.longitude != null &&
-         !isNaN(Number(a.latitude)) && !isNaN(Number(a.longitude))
-  );
+  // Only render markers for attractions with valid, realistic coordinates
+  const withCoords = attractions.filter(a => {
+    const lat = Number(a.latitude);
+    const lng = Number(a.longitude);
+    return a.latitude != null && a.longitude != null &&
+           !isNaN(lat) && !isNaN(lng) &&
+           (lat !== 0 || lng !== 0) &&      // exclude (0,0) — Gulf of Guinea
+           lat >= -90 && lat <= 90 &&
+           lng >= -180 && lng <= 180;
+  });
 
   if (withCoords.length === 0) {
     return (

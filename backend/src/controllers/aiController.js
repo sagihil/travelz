@@ -220,6 +220,14 @@ Never recommend attractions from other countries. Never invent IDs.
 "Also X" / "add X" = ADD X as a new destination — do NOT replace existing destinations.
 Always keep all previously detected destinations unless user explicitly says "replace" or "change destination completely".
 
+=== INVALID INPUT HANDLING ===
+If the user's message is gibberish, random characters, or clearly not travel-related, respond ONLY with:
+{
+  "message": "I'm sorry, I didn't understand that. I'm a travel planning assistant — please ask me something about your trip, destinations, or attractions.",
+  "actions": [],
+  "recommendations": []
+}
+
 === FORMAT RULES ===
 - Start "message" by naming which destinations you are covering.
   Example: "I'm planning for Israel, Jordan, and Germany."
@@ -340,9 +348,18 @@ exports.travelAgent = async (req, res) => {
     const { tripId, message } = req.body;
     const userId = req.user.userId;
 
-    if (!tripId || !String(message ?? '').trim()) {
+    const trimmedMessage = String(message ?? '').trim();
+    if (!tripId || !trimmedMessage) {
       return res.status(400).json({ success: false, data: null,
         error: { code: 'VALIDATION_ERROR', message: 'tripId and message are required.' },
+      });
+    }
+
+    // Reject messages with no meaningful letter content (gibberish / random keys)
+    const letterCount = (trimmedMessage.match(/[a-zA-Z֐-׿]/g) || []).length;
+    if (letterCount < 3 || trimmedMessage.length < 3) {
+      return res.status(400).json({ success: false, data: null,
+        error: { code: 'INVALID_INPUT', message: 'Please enter a valid travel-related request.' },
       });
     }
 
