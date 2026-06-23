@@ -4,26 +4,26 @@
   "description": "TravelZ - Full Stack Travel Planning App - Backend",
   "main": "src/server.js",
   "scripts": {
-    "start":             "node src/server.js",
-    "dev":               "node src/server.js",
-    "db:migrate":        "sequelize-cli db:migrate",
-    "db:migrate:undo":   "sequelize-cli db:migrate:undo:all",
-    "db:seed":           "node src/seeders/seed.js",
-    "db:seed:reset":     "node src/seeders/seed.js",
-    "db:import:kaggle":  "node src/seeders/importKaggle.js"
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo:all",
+    "db:seed": "node src/seeders/seed.js",
+    "db:seed:reset": "node src/seeders/seed.js",
+    "db:import:kaggle": "node src/seeders/importKaggle.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "bcrypt":        "^6.0.0",
-    "dotenv":        "^17.4.2",
-    "express":       "^5.2.1",
-    "jsonwebtoken":  "^9.0.3",
-    "mysql2":        "^3.22.5",
-    "sequelize":     "^6.37.8",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.22.5",
+    "sequelize": "^6.37.8",
     "sequelize-cli": "^6.6.5",
-    "socket.io":     "^4.8.3"
+    "socket.io": "^4.8.3"
   }
 }

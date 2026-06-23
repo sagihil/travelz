@@ -9,7 +9,7 @@ const httpServer = http.createServer(app);
 // ── Socket.IO ──────────────────────────────────────────────────────────────
 const io = new Server(httpServer, {
   cors: {
-    origin:  "http://localhost:5173",
+    origin:  process.env.FRONTEND_URL || "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
@@ -80,7 +80,7 @@ const logger             = require("./middleware/logger");
 
 // ── CORS ───────────────────────────────────────────────────────────────────
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin",  "http://localhost:5173");
+  res.header("Access-Control-Allow-Origin",  process.env.FRONTEND_URL || "http://localhost:5173");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, x-user-role, x-user-id");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   if (req.method === "OPTIONS") return res.sendStatus(200);
@@ -107,15 +107,17 @@ app.get("/", (req, res) => res.json({ message: "TravelZ API is running", version
 sequelize.authenticate()
   .then(() => {
     console.log("MySQL connected via Sequelize");
-    httpServer.listen(3000, () => {
-      console.log("Backend  → http://localhost:3000");
-      console.log("API      → http://localhost:3000/api");
-      console.log("Socket   → ws://localhost:3000");
+    const PORT = process.env.PORT || 3000;
+    httpServer.listen(PORT, () => {
+      console.log(`Backend  → http://localhost:${PORT}`);
+      console.log(`API      → http://localhost:${PORT}/api`);
+      console.log(`Socket   → ws://localhost:${PORT}`);
     });
   })
   .catch((err) => {
     console.error("DB connection failed:", err.message);
-    httpServer.listen(3000, () => {
-      console.log("Backend running (no DB) → http://localhost:3000");
+    const PORT = process.env.PORT || 3000;
+    httpServer.listen(PORT, () => {
+      console.log(`Backend running (no DB) → http://localhost:${PORT}`);
     });
   });
