@@ -241,6 +241,73 @@
   font-size: 1.2rem;
 }
 
+/* ── Notification sound toggle ───────────────────────────── */
+.sound-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  flex-wrap: wrap;
+}
+
+.sound-toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.sound-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.sound-toggle-knob {
+  position: absolute;
+  inset: 0;
+  background: var(--border-color, #cbd5e1);
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.sound-toggle-knob::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sound-toggle-switch--on .sound-toggle-knob {
+  background: var(--color-primary, #2563eb);
+}
+
+.sound-toggle-switch--on .sound-toggle-knob::after {
+  transform: translateX(20px);
+}
+
+.sound-toggle-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sound-toggle-hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  flex-basis: 100%;
+  margin-left: 56px;
+  margin-top: -6px;
+}
+
 /* ── Save button ─────────────────────────────────────────── */
 .save-btn {
   padding: 12px 28px;

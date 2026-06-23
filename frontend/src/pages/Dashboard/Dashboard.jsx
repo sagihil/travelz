@@ -35,13 +35,16 @@
 // Services:   attractionsService, usersManagementService
 // Utils:      permissions (can, getPermissions, PERMISSION_LABELS)
 
-import React, { useState, useEffect } from 'react';
-import Navbar   from '../../components/Navbar/Navbar.jsx';
-import Footer   from '../../components/Footer/Footer.jsx';
-import Card     from '../../components/Card/Card.jsx';
-import DataTable from '../../components/DataTable/DataTable.jsx';
-import Modal    from '../../components/Modal/Modal.jsx';
-import { getStoredUser }  from '../../services/authService.js';
+import React, { useState, useEffect, useCallback } from 'react';
+import Navbar            from '../../components/Navbar/Navbar.jsx';
+import Footer            from '../../components/Footer/Footer.jsx';
+import Card              from '../../components/Card/Card.jsx';
+import DataTable         from '../../components/DataTable/DataTable.jsx';
+import Modal             from '../../components/Modal/Modal.jsx';
+import NotificationsPanel from '../../components/Notifications/NotificationsPanel.jsx';
+import { AttractionToastContainer, playNotificationSound } from '../../components/AttractionToast/AttractionToast.jsx';
+import socket            from '../../services/socketService.js';
+import { getStoredUser } from '../../services/authService.js';
 import {
   getAllAttractions,
   createAttraction,
@@ -71,7 +74,7 @@ const CATEGORY_ICONS = {
 
 // Empty form states – spread into formData when a modal is opened
 const USER_FORM_DEFAULTS       = { firstName: '', lastName: '', email: '', password: '', userRole: 'user' };
-const ATTRACTION_FORM_DEFAULTS = { name: '', city: '', country: '', category: 'Landmark', price: '0', rating: '0' };
+const ATTRACTION_FORM_DEFAULTS = { name: '', city: '', country: '', category: 'Landmark', description: '', rating: '0' };
 
 // ---------------------------------------------------------------------------
 
@@ -90,10 +93,75 @@ function Dashboard() {
   const canSeeUsers = userRole === 'admin' || userRole === 'manager';
 
   // ── Data state ─────────────────────────────────────────────────────────
-  const [attractions, setAttractions] = useState([]);
-  const [users,       setUsers]       = useState([]);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState('');
+  const [attractions,    setAttractions]    = useState([]);
+  const [users,          setUsers]          = useState([]);
+  const [loading,        setLoading]        = useState(true);
+  const [error,          setError]          = useState('');
+
+  // ── Online users (live via socket) ─────────────────────────────────────
+  const [onlineCount, setOnlineCount] = useState(0);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+
+  // ── Real-time notifications (up to 20, newest first) ───────────────────
+  const [notifications, setNotifications] = useState([]);
+  const [toasts,        setToasts]        = useState([]);
+
+  const addNotification = useCallback((type, message) => {
+    setNotifications(prev => [
+      { id: Date.now() + Math.random(), type, message, timestamp: new Date().toISOString() },
+      ...prev,
+    ].slice(0, 20));
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  // Subscribe to online-users updates
+  useEffect(() => {
+    const onOnlineUsers = ({ onlineUsers: count, users }) => {
+      setOnlineCount(count);
+      setOnlineUsers(users || []);
+    };
+    socket.on('onlineUsersUpdated', onOnlineUsers);
+    return () => socket.off('onlineUsersUpdated', onOnlineUsers);
+  }, []);
+
+  // Subscribe to attraction Socket.IO events only
+  useEffect(() => {
+    const onAttractionCreated = ({ attraction, addedBy, message }) => {
+      // Add to table immediately — no page refresh needed
+      setAttractions(prev =>
+        prev.some(a => a.id === attraction.id) ? prev : [...prev, attraction]
+      );
+      addNotification('attraction_created', message || `New attraction added: ${attraction.name}`);
+
+      // Show large toast popup
+      const soundEnabled = localStorage.getItem('travelz_notification_sound') !== 'false';
+      if (soundEnabled) playNotificationSound();
+
+      setToasts(prev => [
+        { id: Date.now() + Math.random(), attraction, addedBy: addedBy || null },
+        ...prev,
+      ].slice(0, 5));
+    };
+
+    const onAttractionUpdated = ({ id, name, updatedFields, message }) => {
+      // Patch the attraction in the table immediately
+      setAttractions(prev =>
+        prev.map(a => a.id === id ? { ...a, ...updatedFields, name } : a)
+      );
+      addNotification('attraction_updated', message || `Attraction updated: ${name}`);
+    };
+
+    socket.on('attraction_created', onAttractionCreated);
+    socket.on('attraction_updated', onAttractionUpdated);
+
+    return () => {
+      socket.off('attraction_created', onAttractionCreated);
+      socket.off('attraction_updated', onAttractionUpdated);
+    };
+  }, [addNotification]);
 
   // ── Action feedback (success banner auto-clears after 3 s) ─────────────
   const [actionMsg, setActionMsg] = useState('');
@@ -149,12 +217,12 @@ function Dashboard() {
       setFormData({ firstName: item.firstName, lastName: item.lastName, userRole: item.userRole });
     } else {
       setFormData({
-        name:     item.name,
-        city:     item.city,
-        country:  item.country,
-        category: item.category,
-        price:    String(item.price),
-        rating:   String(item.rating),
+        name:        item.name,
+        city:        item.city,
+        country:     item.country,
+        category:    item.category,
+        description: item.description || '',
+        rating:      String(item.rating),
       });
     }
     setFormError('');
@@ -198,23 +266,21 @@ function Dashboard() {
       } else {
         // Attractions – price and rating arrive as strings from the input; convert to numbers
         const attractionPayload = {
-          name:     formData.name,
-          city:     formData.city,
-          country:  formData.country,
-          category: formData.category,
-          price:    Number(formData.price),
-          rating:   Number(formData.rating),
+          name:        formData.name,
+          city:        formData.city,
+          country:     formData.country,
+          category:    formData.category,
+          description: formData.description,
+          rating:      Number(formData.rating),
         };
 
         if (mode === 'create') {
           if (!can(userRole, 'canCreateAttraction')) { setFormError('You do not have permission to create attractions.'); return; }
-          // user_id is required by the backend – use the current admin's userId
-          await createAttraction({ ...attractionPayload, user_id: currentUser.userId });
+          await createAttraction(attractionPayload);
           showSuccess('Attraction created successfully.');
         } else {
           if (!can(userRole, 'canEditAttraction')) { setFormError('You do not have permission to edit attractions.'); return; }
-          // Preserve the original creator's user_id
-          await updateAttraction(item.id, { ...attractionPayload, user_id: item.user_id });
+          await updateAttraction(item.id, attractionPayload);
           showSuccess('Attraction updated successfully.');
         }
       }
@@ -294,7 +360,6 @@ function Dashboard() {
     { key: 'city',     label: 'City' },
     { key: 'country',  label: 'Country' },
     { key: 'category', label: 'Category' },
-    { key: 'price',    label: 'Price',  render: (v) => (v === 0 ? 'Free' : `$${v}`) },
     { key: 'rating',   label: 'Rating', render: (v) => `⭐ ${v}` },
     // Actions column – shown only when the current user can edit OR delete
     ...(can(userRole, 'canEditAttraction') || can(userRole, 'canDeleteAttraction')
@@ -478,34 +543,31 @@ function Dashboard() {
             </select>
           </div>
 
-          <div className="modal-row">
-            <div className="modal-field">
-              <label className="modal-label">Price ($) *</label>
-              <input
-                className="modal-input"
-                name="price"
-                type="number"
-                min="0"
-                step="1"
-                value={formData.price ?? '0'}
-                onChange={handleFormChange}
-                required
-              />
-            </div>
-            <div className="modal-field">
-              <label className="modal-label">Rating (0–5) *</label>
-              <input
-                className="modal-input"
-                name="rating"
-                type="number"
-                min="0"
-                max="5"
-                step="0.1"
-                value={formData.rating ?? '0'}
-                onChange={handleFormChange}
-                required
-              />
-            </div>
+          <div className="modal-field">
+            <label className="modal-label">Description</label>
+            <textarea
+              className="modal-input"
+              name="description"
+              rows={3}
+              value={formData.description || ''}
+              onChange={handleFormChange}
+              placeholder="Short description of the attraction"
+            />
+          </div>
+
+          <div className="modal-field">
+            <label className="modal-label">Rating (0–5) *</label>
+            <input
+              className="modal-input"
+              name="rating"
+              type="number"
+              min="0"
+              max="5"
+              step="0.1"
+              value={formData.rating ?? '0'}
+              onChange={handleFormChange}
+              required
+            />
           </div>
         </>
       )}
@@ -563,16 +625,13 @@ function Dashboard() {
               grid layout never collapses to two columns. */}
           <section className="dashboard-section">
             <h2 className="section-title">Overview</h2>
-            <div className="stats-grid">
+            <div className="stats-grid stats-grid--4">
               <Card variant="stat" icon="🗺️" title="Total Attractions" value={loading ? '...' : totalAttractions} />
               <Card variant="stat" icon="🌍" title="Countries Covered"  value={loading ? '...' : uniqueCountries} />
 
               {canSeeUsers ? (
-                /* Admin / Manager – show registered user count */
                 <Card variant="stat" icon="👥" title="Registered Users" value={loading ? '...' : totalUsers} />
               ) : (
-                /* Regular user – show the highest-rated attraction name instead.
-                   Dynamically derived from the attractions array; never hardcoded. */
                 <Card
                   variant="stat"
                   icon="🏆"
@@ -580,8 +639,36 @@ function Dashboard() {
                   value={loading ? '...' : (topRatedAttraction ? topRatedAttraction.name : 'N/A')}
                 />
               )}
+
+              {/* Live online users — all roles */}
+              <Card variant="stat" icon="🟢" title="Active Users" value={`${onlineCount} Online`} />
             </div>
           </section>
+
+          {/* ── Admin: Online Users Panel ────────────────────────── */}
+          {userRole === 'admin' && (
+            <section className="dashboard-section">
+              <h2 className="section-title">Online Users</h2>
+              {onlineUsers.length === 0 ? (
+                <p className="empty-msg">No users currently online.</p>
+              ) : (
+                <div className="online-users-panel">
+                  {onlineUsers.map((u, i) => (
+                    <div key={i} className="online-user-row">
+                      <span className="ou-dot" />
+                      <span className="ou-name">{u.userName}</span>
+                      <span className={`role-badge role-${(u.role || 'user').toLowerCase()}`}>
+                        {u.role}
+                      </span>
+                      <span className="ou-time">
+                        Active since {new Date(u.loginTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
 
           {/* ── Section 2: Role Overview (allowed permissions only) ─ */}
           {/* Why denied permissions are not shown:
@@ -644,7 +731,7 @@ function Dashboard() {
           )}
 
           {/* ── Section 4: Attractions Management ───────────────── */}
-          <section className="dashboard-section">
+          <section id="section-attractions" className="dashboard-section">
             <div className="section-header">
               <h2 className="section-title">Attractions Management</h2>
               {can(userRole, 'canCreateAttraction') && (
@@ -687,10 +774,22 @@ function Dashboard() {
             )}
           </section>
 
+          {/* ── Section 6: Live Activity / Notifications ─────────── */}
+          <section className="dashboard-section">
+            <h2 className="section-title">Live Activity</h2>
+            <NotificationsPanel
+              notifications={notifications}
+              onClear={() => setNotifications([])}
+            />
+          </section>
+
         </div>
       </main>
 
       <Footer />
+
+      {/* ── Attraction toast notifications ─────────────────────── */}
+      <AttractionToastContainer toasts={toasts} onClose={removeToast} />
 
       {/* ── Create / Edit modal ────────────────────────────────── */}
       <Modal

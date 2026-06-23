@@ -17,3 +17,11 @@ yarn-error.log*
 # OS metadata files
 .DS_Store
 Thumbs.db
+
+# Large binary/media files
+*.mp4
+*.mov
+*.avi
+
+# Screenshots folder
+screenshots/

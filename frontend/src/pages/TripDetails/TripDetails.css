@@ -1,0 +1,68 @@
+/* ── Loading / error ─────────────────────────────────────────────────────── */
+.td-loading {
+  padding: 80px 0;
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.td-error { padding: 40px 0; color: var(--color-error); }
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────────── */
+.td-breadcrumb { margin-bottom: 24px; }
+.td-breadcrumb a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.td-breadcrumb a:hover { text-decoration: underline; }
+
+/* ── Hero card ───────────────────────────────────────────────────────────── */
+.td-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.td-hero-plane  { font-size: 2.2rem; flex-shrink: 0; }
+.td-hero-info   { flex: 1; min-width: 200px; }
+
+.td-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.td-desc {
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+  line-height: 1.6;
+}
+
+.td-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.td-meta-sep { margin-left: 8px; }
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+.td-section { margin-bottom: 40px; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .td-hero  { padding: 20px; }
+  .td-title { font-size: 1.4rem; }
+}

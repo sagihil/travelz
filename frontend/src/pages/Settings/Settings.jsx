@@ -76,13 +76,12 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function Settings() {
   // ── Form state ────────────────────────────────────────────────────────
-  // Single controlled-input hub. Every field lives here so we can pass
-  // the whole object to updateSettings() in one call.
   const [form, setForm] = useState({
-    firstName: '',
-    lastName:  '',
-    email:     '',
-    theme:     'light',
+    firstName:         '',
+    lastName:          '',
+    email:             '',
+    theme:             'light',
+    notificationSound: localStorage.getItem('travelz_notification_sound') !== 'false',
   });
 
   // ── UI state ──────────────────────────────────────────────────────────
@@ -174,6 +173,22 @@ function Settings() {
     // Theme is applied live – no save required for the visual preview
     if (name === 'theme') {
       applyTheme(value);
+    }
+
+    // Notification sound is local-only – write to localStorage immediately
+    if (name === 'notificationSound') {
+      localStorage.setItem('travelz_notification_sound', String(value));
+    }
+  };
+
+  // ── handleToggle ─────────────────────────────────────────────────────
+  // For boolean toggle controls (checkbox). Writes local-only prefs to
+  // localStorage immediately so Dashboard picks them up without a page reload.
+  const handleToggle = (e) => {
+    const { name, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: checked }));
+    if (name === 'notificationSound') {
+      localStorage.setItem('travelz_notification_sound', String(checked));
     }
   };
 
@@ -402,6 +417,29 @@ function Settings() {
                         <span>Dark</span>
                       </label>
                     </div>
+                  </div>
+
+                  {/* Setting 5 – Notification sound (local-only preference) */}
+                  <div className="form-group">
+                    <label className="form-label">Notification Sound</label>
+                    <label className="sound-toggle-row">
+                      <div className={`sound-toggle-switch${form.notificationSound ? ' sound-toggle-switch--on' : ''}`}>
+                        <input
+                          type="checkbox"
+                          name="notificationSound"
+                          checked={form.notificationSound}
+                          onChange={handleToggle}
+                          disabled={saving}
+                        />
+                        <span className="sound-toggle-knob" />
+                      </div>
+                      <span className="sound-toggle-label">
+                        {form.notificationSound ? '🔔 Sound on' : '🔕 Sound off'}
+                      </span>
+                      <span className="sound-toggle-hint">
+                        Play a chime when a new attraction is added in real time
+                      </span>
+                    </label>
                   </div>
                 </fieldset>
 

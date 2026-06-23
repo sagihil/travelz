@@ -36,7 +36,9 @@ const api = axios.create({
 // ---------------------------------------------------------------------------
 api.interceptors.request.use(
   (config) => {
-    const raw = localStorage.getItem('travelz_auth');
+    // Auth tokens live in sessionStorage (per-tab) so different users
+    // can be logged in simultaneously across different tabs/browsers.
+    const raw = sessionStorage.getItem('travelz_auth');
     if (raw) {
       try {
         const { token } = JSON.parse(raw);
@@ -44,7 +46,7 @@ api.interceptors.request.use(
           config.headers['Authorization'] = `Bearer ${token}`;
         }
       } catch {
-        // Corrupted localStorage value – ignore and send without token
+        // Corrupted value – ignore and send without token
       }
     }
     return config;

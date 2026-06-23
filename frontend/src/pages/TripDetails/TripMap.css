@@ -1,0 +1,118 @@
+/* ── Map container ───────────────────────────────────────────────────────── */
+.trip-map-container {
+  width: 100%;
+  height: 480px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  z-index: 0; /* keep below modals */
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.trip-map-empty {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+}
+
+.trip-map-empty span { font-size: 2rem; }
+.trip-map-empty p    { font-size: 0.95rem; }
+
+/* ── Custom marker (DivIcon) ────────────────────────────────────────────── */
+.trip-map-marker {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+  cursor: pointer;
+}
+
+.trip-map-marker:hover { transform: scale(1.2); }
+
+.trip-map-marker-day {
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+
+/* ── Popup ───────────────────────────────────────────────────────────────── */
+.trip-map-popup {
+  min-width: 190px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+.trip-map-popup-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.trip-map-popup-row {
+  font-size: 0.85rem;
+  color: #475569;
+  margin-bottom: 2px;
+}
+
+.trip-map-popup-notes {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.trip-map-popup-desc {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 6px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 5px;
+  line-height: 1.4;
+}
+
+/* ── Day legend ──────────────────────────────────────────────────────────── */
+.trip-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.trip-map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.trip-map-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .trip-map-container { height: 320px; }
+}

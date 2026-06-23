@@ -15,9 +15,12 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
-import Login from './pages/Login/Login.jsx';
-import Dashboard from './pages/Dashboard/Dashboard.jsx';
-import Settings from './pages/Settings/Settings.jsx';
+import Login       from './pages/Login/Login.jsx';
+import Dashboard   from './pages/Dashboard/Dashboard.jsx';
+import Settings    from './pages/Settings/Settings.jsx';
+import Trips       from './pages/Trips/Trips.jsx';
+import TripDetails from './pages/TripDetails/TripDetails.jsx';
+import Interests   from './pages/Interests/Interests.jsx';
 
 function App() {
   // Apply the stored theme class to <html> immediately on app load.
@@ -54,6 +57,30 @@ function App() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trips"
+          element={
+            <ProtectedRoute>
+              <Trips />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trips/:id"
+          element={
+            <ProtectedRoute>
+              <TripDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/interests"
+          element={
+            <ProtectedRoute>
+              <Interests />
             </ProtectedRoute>
           }
         />

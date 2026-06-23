@@ -17,9 +17,10 @@
 //   user     – The full user object returned by the backend.
 //   loading  – True while the GET /users/:id request is in flight.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentUser, logout, getStoredUser } from '../../services/authService.js';
+import socket, { announcePresence } from '../../services/socketService.js';
 import './Navbar.css';
 
 function Navbar() {
@@ -27,8 +28,13 @@ function Navbar() {
   const location  = useLocation();
 
   // Start with the locally cached user so the name appears instantly (no flicker)
-  const [user, setUser]       = useState(getStoredUser());
-  const [loading, setLoading] = useState(false);
+  const [user,        setUser]        = useState(getStoredUser());
+  const [toast,       setToast]       = useState(null); // { icon, message }
+  const [loading,     setLoading]     = useState(false);
+  const [onlineCount, setOnlineCount] = useState(0);
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [isPulsing,   setIsPulsing]   = useState(false);
+  const prevCount = useRef(0);
 
   // Refresh user data from the backend every time the Navbar mounts or the
   // route changes, so the displayed name stays in sync with Settings changes.
@@ -48,6 +54,68 @@ function Navbar() {
 
     loadUser();
   }, [location.pathname]); // Re-fetch whenever the active route changes
+
+  // ── Announce presence when Navbar first mounts (handles post-login case) ─
+  useEffect(() => {
+    announcePresence();
+  }, []); // eslint-disable-line
+
+  // ── Socket.IO: online users + attraction events + connection status ────
+  useEffect(() => {
+    const currentUser = getStoredUser();
+    const isAdmin     = currentUser?.userRole === 'admin';
+
+    const showToast = (icon, message) => {
+      setToast({ icon, message });
+      setTimeout(() => setToast(null), 4000);
+    };
+
+    // Online count
+    const onOnlineUsers = ({ onlineUsers }) => {
+      if (onlineUsers !== prevCount.current) {
+        setIsPulsing(true);
+        setTimeout(() => setIsPulsing(false), 700);
+        prevCount.current = onlineUsers;
+      }
+      setOnlineCount(onlineUsers);
+    };
+
+    // Connection status
+    const onConnect    = () => { setIsConnected(true);  announcePresence(); };
+    const onDisconnect = () =>   setIsConnected(false);
+
+    // Attraction events
+    const onAttractionCreated = ({ attraction }) =>
+      showToast('🔔', `New Attraction Added: ${attraction.name}`);
+    const onAttractionUpdated = ({ name }) =>
+      showToast('🔔', `Attraction Updated: ${name}`);
+
+    // Presence notifications — admins only
+    const onUserJoined = ({ userName }) => {
+      if (isAdmin) showToast('🟢', `${userName} joined TravelZ`);
+    };
+    const onUserLeft = ({ userName }) => {
+      if (isAdmin) showToast('🔴', `${userName} left TravelZ`);
+    };
+
+    socket.on('onlineUsersUpdated', onOnlineUsers);
+    socket.on('connect',            onConnect);
+    socket.on('disconnect',         onDisconnect);
+    socket.on('attraction_created', onAttractionCreated);
+    socket.on('attraction_updated', onAttractionUpdated);
+    socket.on('user:joined',        onUserJoined);
+    socket.on('user:left',          onUserLeft);
+
+    return () => {
+      socket.off('onlineUsersUpdated', onOnlineUsers);
+      socket.off('connect',            onConnect);
+      socket.off('disconnect',         onDisconnect);
+      socket.off('attraction_created', onAttractionCreated);
+      socket.off('attraction_updated', onAttractionUpdated);
+      socket.off('user:joined',        onUserJoined);
+      socket.off('user:left',          onUserLeft);
+    };
+  }, []); // eslint-disable-line
 
   // Handle logout: clear auth state then redirect to the login page.
   //
@@ -83,11 +151,32 @@ function Navbar() {
             </Link>
           </li>
           <li>
+            <Link to="/trips" className={location.pathname.startsWith('/trips') ? 'nav-link active' : 'nav-link'}>
+              Trips
+            </Link>
+          </li>
+          <li>
+            <Link to="/interests" className={isActive('/interests')}>
+              Interests
+            </Link>
+          </li>
+          <li>
             <Link to="/settings" className={isActive('/settings')}>
               Settings
             </Link>
           </li>
         </ul>
+
+        {/* ── Online users badge ───────────────────────────────── */}
+        <div
+          className={`online-badge${isPulsing ? ' online-badge--pulse' : ''} ${isConnected ? '' : 'online-badge--offline'}`}
+          title={isConnected ? `${onlineCount} user${onlineCount !== 1 ? 's' : ''} online` : 'Disconnected from server'}
+        >
+          <span className={`online-dot ${isConnected ? 'online-dot--on' : 'online-dot--off'}`} />
+          <span className="online-label">
+            {isConnected ? `${onlineCount} Online` : 'Offline'}
+          </span>
+        </div>
 
         {/* ── User Area ─────────────────────────────────────────── */}
         <div className="navbar-user">
@@ -114,6 +203,14 @@ function Navbar() {
         </div>
 
       </div>
+
+      {/* ── Real-time toast (appears on ALL pages) ─────────────── */}
+      {toast && (
+        <div className="navbar-toast" key={toast.message}>
+          <span className="navbar-toast-icon">{toast.icon}</span>
+          <span className="navbar-toast-msg">{toast.message}</span>
+        </div>
+      )}
     </nav>
   );
 }

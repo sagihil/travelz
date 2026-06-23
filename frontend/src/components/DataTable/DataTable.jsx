@@ -1,35 +1,57 @@
-// components/DataTable/DataTable.jsx
-// -----------------------------------
-// Purpose: A fully reusable table component that renders any backend data dynamically.
-//
-// Design decisions:
-//   - Receives all data and column definitions through props – it knows nothing
-//     about attractions, users, or any specific entity type.
-//   - Uses Array.prototype.map() to generate both table header cells (from
-//     the columns prop) and table rows (from the data prop).
-//   - A custom render function per column lets callers format values (e.g.,
-//     displaying "$35" instead of "35", showing "Free" when price is 0).
-//   - Handles three states: loading, empty data, and populated data.
-//
-// Props:
-//   columns  {Array}   – Array of column descriptor objects:
-//                         { key: string, label: string, render?: (value, row) => ReactNode }
-//                         - key:    The object property to read from each data row.
-//                         - label:  The column header text.
-//                         - render: Optional formatter function. If omitted,
-//                                   the raw value is displayed.
-//   data     {Array}   – Array of data objects (one object = one table row).
-//   loading  {boolean} – When true, shows a loading message instead of data.
-//   emptyMessage {string} – Text shown when data array is empty (optional).
-//
-// Reusability examples:
-//   - Dashboard uses it for attractions.
-//   - Could be reused for users, destinations, trips, etc. with zero changes.
-
-import React from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './DataTable.css';
 
-function DataTable({ columns = [], data = [], loading = false, emptyMessage = 'No data available.' }) {
+const PAGE_SIZE = 5; // initial rows shown + increment per "Load More" click
+
+function DataTable({
+  columns      = [],
+  data         = [],
+  loading      = false,
+  emptyMessage = 'No data available.',
+  pageSize     = PAGE_SIZE,
+}) {
+  const [visibleCount, setVisibleCount] = useState(pageSize);
+  const [loadingMore,  setLoadingMore]  = useState(false);
+  const wrapperRef = useRef(null);
+
+  // Build a stable key from the record IDs so we can detect a meaningful
+  // data change (new filter / refresh) without firing on every re-render.
+  const dataKey = useMemo(
+    () => data.map(r => r.id ?? r.userId ?? '').join(','),
+    [data]
+  );
+
+  // Reset to first page whenever the dataset itself changes.
+  useEffect(() => {
+    setVisibleCount(pageSize);
+  }, [dataKey, pageSize]);
+
+  const visibleData  = data.slice(0, visibleCount);
+  const hasMore      = visibleCount < data.length;
+  const canShowLess  = visibleCount > pageSize;   // user has expanded beyond initial view
+  const allLoaded    = !hasMore && data.length > pageSize;
+
+  const loadMore = () => {
+    setLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(prev => Math.min(prev + pageSize, data.length));
+      setLoadingMore(false);
+    }, 280);
+  };
+
+  const showAll = () => {
+    setLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(data.length);
+      setLoadingMore(false);
+    }, 280);
+  };
+
+  const showLess = () => {
+    setVisibleCount(pageSize);
+    // Scroll the top of the table back into view
+    wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
 
   // ── Loading state ───────────────────────────────────────────────────────
   if (loading) {
@@ -53,9 +75,8 @@ function DataTable({ columns = [], data = [], loading = false, emptyMessage = 'N
 
   // ── Populated state ─────────────────────────────────────────────────────
   return (
-    <div className="datatable-wrapper">
+    <div className="datatable-wrapper" ref={wrapperRef}>
       <table className="datatable">
-        {/* ── Table Head: generated from the columns prop ── */}
         <thead>
           <tr>
             {columns.map((col) => (
@@ -63,15 +84,11 @@ function DataTable({ columns = [], data = [], loading = false, emptyMessage = 'N
             ))}
           </tr>
         </thead>
-
-        {/* ── Table Body: one <tr> per data row ── */}
         <tbody>
-          {data.map((row, rowIndex) => (
-            // Use index as fallback key; prefer a unique row ID when available
+          {visibleData.map((row, rowIndex) => (
             <tr key={row.id ?? row.userId ?? rowIndex}>
               {columns.map((col) => (
                 <td key={col.key}>
-                  {/* If the column has a custom renderer, use it; otherwise show raw value */}
                   {col.render
                     ? col.render(row[col.key], row)
                     : row[col.key] ?? '—'}
@@ -82,10 +99,56 @@ function DataTable({ columns = [], data = [], loading = false, emptyMessage = 'N
         </tbody>
       </table>
 
-      {/* Row count footer */}
-      <p className="datatable-count">
-        Showing {data.length} {data.length === 1 ? 'record' : 'records'}
-      </p>
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <div className="datatable-footer">
+        <span className="datatable-count">
+          Showing <strong>{visibleData.length}</strong> of <strong>{data.length}</strong>{' '}
+          {data.length === 1 ? 'record' : 'records'}
+        </span>
+
+        <div className="datatable-actions">
+          {/* Load More — only when more records exist */}
+          {hasMore && (
+            <button
+              className="dt-btn dt-btn--primary"
+              onClick={loadMore}
+              disabled={loadingMore}
+            >
+              {loadingMore
+                ? <><span className="dt-spinner" />Loading…</>
+                : `Load More (${Math.min(pageSize, data.length - visibleCount)} more)`
+              }
+            </button>
+          )}
+
+          {/* Show All — only when more records exist */}
+          {hasMore && (
+            <button
+              className="dt-btn dt-btn--ghost"
+              onClick={showAll}
+              disabled={loadingMore}
+            >
+              Show All ({data.length})
+            </button>
+          )}
+
+          {/* All records loaded confirmation */}
+          {allLoaded && (
+            <span className="dt-all-loaded">✓ All {data.length} records loaded</span>
+          )}
+
+          {/* Show Less — visible whenever the user has expanded beyond the initial view */}
+          {canShowLess && (
+            <button
+              className="dt-btn dt-btn--collapse"
+              onClick={showLess}
+              disabled={loadingMore}
+            >
+              Show Less ↑
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

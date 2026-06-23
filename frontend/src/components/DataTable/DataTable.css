@@ -1,10 +1,8 @@
-/* components/DataTable/DataTable.css
- * Purpose: Styles for the reusable DataTable component.
- */
+/* components/DataTable/DataTable.css */
 
 /* ── Wrapper ───────────────────────────────────────────────── */
 .datatable-wrapper {
-  overflow-x: auto;           /* horizontal scroll on small screens */
+  overflow-x: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
@@ -18,7 +16,6 @@
   font-size: 0.9rem;
 }
 
-/* Header row */
 .datatable thead tr {
   background-color: #1e3a5f;
   color: #ffffff;
@@ -33,23 +30,15 @@
   white-space: nowrap;
 }
 
-/* Data rows */
 .datatable tbody tr {
   border-bottom: 1px solid var(--border-color);
   transition: background-color 0.15s ease;
 }
 
-.datatable tbody tr:last-child {
-  border-bottom: none;
-}
+.datatable tbody tr:last-child { border-bottom: none; }
 
-.datatable tbody tr:hover {
-  background-color: #eff6ff;
-}
-
-:root.dark .datatable tbody tr:hover {
-  background-color: #1e3a5f;
-}
+.datatable tbody tr:hover          { background-color: #eff6ff; }
+:root.dark .datatable tbody tr:hover { background-color: #1e3a5f; }
 
 .datatable td {
   padding: 11px 16px;
@@ -57,14 +46,130 @@
   vertical-align: middle;
 }
 
-/* ── Row count ─────────────────────────────────────────────── */
-.datatable-count {
+/* ── Footer ─────────────────────────────────────────────────── */
+.datatable-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 10px 16px;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
   background-color: var(--bg-card);
   border-top: 1px solid var(--border-color);
-  text-align: right;
+}
+
+.datatable-count {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.datatable-count strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Load More / Show All buttons ───────────────────────────── */
+.datatable-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  font-weight: 600;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.dt-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dt-btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+  border: 1.5px solid var(--color-primary);
+}
+
+.dt-btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.dt-btn--primary:active:not(:disabled) { transform: scale(0.97); }
+
+.dt-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-color);
+}
+
+.dt-btn--ghost:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Show Less — visually separated from Load More / Show All */
+.dt-btn--collapse {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-color);
+  margin-left: 4px;
+}
+
+.dt-btn--collapse:hover:not(:disabled) {
+  border-color: var(--color-error, #dc2626);
+  color: var(--color-error, #dc2626);
+}
+
+/* Optional: thin divider before Show Less so it reads as a separate action */
+.datatable-actions .dt-btn--collapse {
+  border-left-color: var(--border-color);
+  position: relative;
+}
+
+.datatable-actions .dt-btn--collapse::before {
+  content: '';
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  background: var(--border-color);
+  margin-right: 12px;
+  vertical-align: middle;
+}
+
+/* "All records loaded" confirmation */
+.dt-all-loaded {
+  font-size: 0.82rem;
+  color: #15803d;
+  font-weight: 500;
+}
+
+:root.dark .dt-all-loaded { color: #4ade80; }
+
+/* ── Inline spinner inside Load More button ─────────────────── */
+.dt-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: dt-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes dt-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ── Loading / Empty states ────────────────────────────────── */
@@ -82,11 +187,8 @@
   font-size: 0.95rem;
 }
 
-.datatable-empty .empty-icon {
-  font-size: 2.5rem;
-}
+.datatable-empty .empty-icon { font-size: 2.5rem; }
 
-/* Spinner animation */
 .loading-spinner {
   display: inline-block;
   width: 32px;
@@ -97,6 +199,4 @@
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
