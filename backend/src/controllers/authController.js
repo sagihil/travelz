@@ -72,6 +72,7 @@ exports.register = async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({
+      name:      `${firstName.trim()} ${lastName.trim()}`,
       firstName: firstName.trim(),
       lastName:  lastName.trim(),
       email:     email.trim().toLowerCase(),
